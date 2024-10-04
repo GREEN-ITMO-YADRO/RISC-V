@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 import enums::*;
 
 module alu(input var logic signed[31:0] lhs,

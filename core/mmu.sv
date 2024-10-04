@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module mmu
     #(parameter integer DEVICE_COUNT = 0)
      (input  var logic       re, we,
@@ -17,7 +19,7 @@ module mmu
       output var logic       dev_we[DEVICE_COUNT],
       output var logic[31:0] dev_wd[DEVICE_COUNT],
 
-      input var logic       dev_ro[DEVICE_COUNT],
+      input var logic       dev_rw[DEVICE_COUNT],
       input var logic[31:0] dev_addr_start[DEVICE_COUNT],
       input var logic[31:0] dev_addr_end[DEVICE_COUNT]);
 
@@ -168,7 +170,7 @@ module mmu
                     access_fault_r_in[i] = 1'b0;
 
                     if (we & ~addr_misaligned_w) begin
-                        if (dev_ro[i]) begin
+                        if (dev_rw[i]) begin
                             access_fault_w_in[i] = 1'b0;
                             dev_we[i] = 1'b1;
                         end;

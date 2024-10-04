@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module top(input var logic clk32,
            input var logic btn,
            output var logic[7:0] led);
@@ -20,7 +22,7 @@ module top(input var logic clk32,
     logic       rom_we, ram_we[4], led_we, mtime_we, mtimecmp_we;
     logic[31:0] rom_wd, ram_wd[4], led_wd, mtime_wd, mtimecmp_wd;
 
-    rom #(.WORDS(8192), .INITIAL_FILE("../mem/app.mem")) rom(
+    rom #(.WORDS(8192), .INITIAL_FILE("mem/app.mem")) rom(
         .clk(clk32),
         .re(rom_re), .rd(rom_rd), .addr(rom_addr)
     );
@@ -82,12 +84,12 @@ module top(input var logic clk32,
         .access_fault(access_fault),
         .addr_misaligned(addr_misaligned),
 
-        .dev_addr({rom_addr, ram_addr, led_addr, mtime_addr, mtimecmp_addr}),
-        .dev_re({rom_re, ram_re, led_re, mtime_re, mtimecmp_re}),
-        .dev_rd({rom_rd, ram_rd, led_rd, mtime_rd, mtimecmp_rd}),
-        .dev_we({rom_we, ram_we, led_we, mtime_we, mtimecmp_we}),
-        .dev_wd({rom_wd, ram_wd, led_wd, mtime_wd, mtimecmp_wd}),
-        .dev_ro({1'b1,   4'b0,   1'b0,   1'b0,     1'b0}),
+        .dev_addr('{rom_addr, ram_addr[0], ram_addr[1], ram_addr[2], ram_addr[3], led_addr, mtime_addr, mtimecmp_addr}),
+        .dev_re('{rom_re, ram_re[0], ram_re[1], ram_re[2], ram_re[3], led_re, mtime_re, mtimecmp_re}),
+        .dev_rd('{rom_rd, ram_rd[0], ram_rd[1], ram_rd[2], ram_rd[3], led_rd, mtime_rd, mtimecmp_rd}),
+        .dev_we('{rom_we, ram_we[0], ram_we[1], ram_we[2], ram_we[3], led_we, mtime_we, mtimecmp_we}),
+        .dev_wd('{rom_wd, ram_wd[0], ram_wd[1], ram_wd[2], ram_wd[3], led_wd, mtime_wd, mtimecmp_wd}),
+        .dev_rw('{1'b0,   1'b1,      1'b1,      1'b1,      1'b1,      1'b1,   1'b1,     1'b1}),
         .dev_addr_start('{
             32'h8000_0000,
             32'h4000_0000,

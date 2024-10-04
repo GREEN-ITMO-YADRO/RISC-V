@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module word_mmap
     #(parameter WORDS = 1)
      (input  var logic[32 * WORDS - 1 : 0] mem_rd,

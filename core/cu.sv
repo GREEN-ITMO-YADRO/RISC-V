@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 import enums::*;
 
 module cu(input var proc_state_t proc_state,

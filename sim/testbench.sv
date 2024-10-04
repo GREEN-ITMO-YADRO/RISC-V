@@ -77,7 +77,7 @@ module testbench;
         .dev_rd('{rom_rd, ram_rd, led_rd, mtime_rd, mtimecmp_rd, dut_bus_rd}),
         .dev_we('{rom_we, ram_we, led_we, mtime_we, mtimecmp_we, dut_bus_we}),
         .dev_wd('{rom_wd, ram_wd, led_wd, mtime_wd, mtimecmp_wd, dut_bus_wd}),
-        .dev_ro('{1'b1,   1'b0,   1'b0,   1'b0,     1'b0,        1'b0}),
+        .dev_rw('{1'b0,   1'b1,   1'b1,   1'b1,     1'b1,        1'b1}),
         .dev_addr_start('{
             32'h8000_0000,
             32'h4000_0000,
@@ -135,7 +135,10 @@ module testbench;
         #100 reset = 1'b0;
         #250000;
         read(13, buffer);
-        if (buffer != "hello, rv32i!") $fatal(2, "tb failed");
+        $display("%d", dut_bus_rx.size());
+        if (buffer != "hello, rv32i!") begin
+            $fatal(2, "tb failed: got '%s'", buffer);
+        end
         $finish;
     end;
 
