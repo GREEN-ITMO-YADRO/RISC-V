@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 import enums::*;
 
 // Control and Status Register interface

@@ -1,40 +1,52 @@
+`timescale 1ns / 1ps
+
 module word_mmap
     #(parameter WORDS = 1)
-    (input var logic[32 * WORDS - 1 : 0] rd,
-     output var logic[32 * WORDS - 1 : 0] wd,
-     mmap_dev.slave iface);
+     (input  var logic[32 * WORDS - 1 : 0] mem_rd,
+      output var logic[32 * WORDS - 1 : 0] mem_wd,
+
+      input  var logic       re,
+      output var logic[31:0] rd,
+      input  var logic       we,
+      input  var logic[31:0] wd,
+      input  var logic[31:2] addr);
 
     logic[WORDS - 1 : 0][31:0] rd_words;
     logic[WORDS - 1 : 0][31:0] wd_words;
 
-    assign rd_words = rd;
-    assign wd = wd_words;
+    assign rd_words = mem_rd;
+    assign mem_wd = wd_words;
 
-    assign iface.rd = rd_words[iface.addr[31:2]];
+    assign rd = rd_words[addr[31:2]];
 
     always_comb begin
         wd_words = rd_words;
 
-        if (iface.we) begin
-            wd_words[iface.addr[31:2]] = iface.wd;
+        if (we) begin
+            wd_words[addr[31:2]] = wd;
         end;
     end;
 
 endmodule
 
-module led_mmap(input var logic clk, reset,
-                output var logic[7:0] led,
-                mmap_dev.slave iface);
+module led_mmap
+    (input  var logic       clk, reset,
+     output var logic[7:0]  led,
+     input  var logic       re,
+     output var logic[31:0] rd,
+     input  var logic       we,
+     input  var logic[31:0] wd,
+     input  var logic[31:2] addr);
 
-    logic[7:0] rd, wd;
-    assign iface.rd = {24'b0, rd};
-    assign wd = iface.we ? iface.wd[7:0] : rd;
+    logic[7:0] led_rd, led_wd;
+    assign rd = {24'b0, led_rd};
+    assign led_wd = we ? wd[7:0] : led_rd;
 
     register #(.WIDTH(8), .RESET_VALUE(8'b0)) led_reg(
         .clk(clk), .reset(reset),
-        .rd(rd), .wd(wd)
+        .rd(led_rd), .wd(led_wd)
     );
 
-    assign led = rd;
+    assign led = led_rd;
 
 endmodule

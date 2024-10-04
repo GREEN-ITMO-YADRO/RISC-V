@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module le_to_be
     #(parameter WIDTH = 32)
     (input var logic[WIDTH - 1 : 0] in,
