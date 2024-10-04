@@ -1,6 +1,6 @@
 #!/bin/bash
 
-circt-rtl-sim.py --sim=verilator --top=sim/rv32_tb.sv --valgrind \
+circt-rtl-sim.py --sim=verilator --top=rv32_tb --valgrind \
   core/enums.sv \
   core/cpu.sv \
   core/adder.sv \

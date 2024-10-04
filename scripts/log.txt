@@ -190,8 +190,8 @@
         ... Known scopes under 'ADDR_START': <no instances found>
         ... Known scopes under 'ADDR_END': <no instances found>
 %Error: Exiting due to 6 error(s), 25 warning(s)
+
 #===== circt-sim-run.sh =====#
-%Error: Specified --top-module 'sim/rv32_tb.sv' was not found in design.
 %Warning-TIMESCALEMOD: /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/enums.sv:1:9: Timescale missing on this module as other modules have it (IEEE 1800-2017 3.14.2.3)
     1 | package enums;
       |         ^~~~~
@@ -332,6 +332,56 @@
                        /home/artjom/Desktop/Uni/1sem_NIR/risc-v/sim/rv32_tb.sv:3:8: ... Location of module with timescale
     3 | module rv32_tb();
       |        ^~~~~~~
-%Error: Exiting due to 1 error(s), 23 warning(s)
-Running: /usr/bin/verilator --cc --top-module sim/rv32_tb.sv -sv --build --exe --assert /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/enums.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/cpu.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/adder.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/alu.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/counter.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/csr.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/cu.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/register.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/datapath.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/io.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/le_to_be.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mem.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mmu.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mux.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/regfile.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/sim/rv32_tb.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/sim/dut_bus.sv /home/artjom/Desktop/CIRCT/circt/build/bin/driver.cpp
-CompletedProcess(args=['/usr/bin/verilator', '--cc', '--top-module', 'sim/rv32_tb.sv', '-sv', '--build', '--exe', '--assert', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/enums.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/cpu.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/adder.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/alu.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/counter.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/csr.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/cu.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/register.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/datapath.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/io.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/le_to_be.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mem.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mmu.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mux.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/regfile.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/sim/rv32_tb.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/sim/dut_bus.sv', '/home/artjom/Desktop/CIRCT/circt/build/bin/driver.cpp'], returncode=1)
+%Error: /home/artjom/Desktop/Uni/1sem_NIR/risc-v/sim/rv32_tb.sv:68:10: Interface port 'dev_ifs' is not connected to interface/modport pin expression
+                                                                     : ... In instance rv32_tb
+   68 |         .dev_ifs('{
+      |          ^~~~~~~
+%Error: /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mem.sv:31:9: Loop unrolling took too long; probably this is an infinite loop, or set --unroll-count above 1024
+                                                                 : ... In instance rv32_tb.rom
+   31 |         for (genvar i = 0; i < WORDS; ++i) begin
+      |         ^~~
+%Warning-WIDTH: /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/register.sv:3:38: Operator VAR 'RESET_VALUE' expects 5 bits on the Initial value, but Initial value's CONST '32'h0' generates 32 bits.
+                                                                              : ... In instance rv32_tb.dut.datapath.mcause_reg
+    3 |       parameter logic[WIDTH - 1 : 0] RESET_VALUE = 0)
+      |                                      ^~~~~~~~~~~
+%Warning-WIDTH: /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/register.sv:3:38: Operator VAR 'RESET_VALUE' expects 64 bits on the Initial value, but Initial value's CONST '1'h0' generates 1 bits.
+                                                                              : ... In instance rv32_tb.dut.datapath.mcycle_ctr.ctr_reg
+    3 |       parameter logic[WIDTH - 1 : 0] RESET_VALUE = 0)
+      |                                      ^~~~~~~~~~~
+%Error: /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mmu.sv:27:17: Parent instance's interface is not found: 'mmap_dev'
+                                                                  : ... In instance rv32_tb.mmu
+   27 |                 mmap_dev.master dev_ifs[DEVICE_COUNT]);
+      |                 ^~~~~~~~
+%Error: /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mmu.sv:48:43: Can't find definition of 'RW' in dotted signal: 'dev_ifs.RW'
+                                                                  : ... In instance rv32_tb.mmu
+   48 |             assign dev_rw[i] = dev_ifs[i].RW;
+      |                                           ^~
+        ... Known scopes under 'RW': <no instances found>
+%Error: /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mmu.sv:49:51: Can't find definition of 'ADDR_START' in dotted signal: 'dev_ifs.ADDR_START'
+                                                                  : ... In instance rv32_tb.mmu
+   49 |             assign dev_addr_start[i] = dev_ifs[i].ADDR_START;
+      |                                                   ^~~~~~~~~~
+        ... Known scopes under 'ADDR_START': <no instances found>
+%Error: /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mmu.sv:50:49: Can't find definition of 'ADDR_END' in dotted signal: 'dev_ifs.ADDR_END'
+                                                                  : ... In instance rv32_tb.mmu
+   50 |             assign dev_addr_end[i] = dev_ifs[i].ADDR_END;
+      |                                                 ^~~~~~~~
+        ... Known scopes under 'ADDR_END': <no instances found>
+        ... Known scopes under 'RW': <no instances found>
+        ... Known scopes under 'ADDR_START': <no instances found>
+        ... Known scopes under 'ADDR_END': <no instances found>
+        ... Known scopes under 'RW': <no instances found>
+        ... Known scopes under 'ADDR_START': <no instances found>
+        ... Known scopes under 'ADDR_END': <no instances found>
+        ... Known scopes under 'RW': <no instances found>
+        ... Known scopes under 'ADDR_START': <no instances found>
+        ... Known scopes under 'ADDR_END': <no instances found>
+        ... Known scopes under 'RW': <no instances found>
+        ... Known scopes under 'ADDR_START': <no instances found>
+        ... Known scopes under 'ADDR_END': <no instances found>
+        ... Known scopes under 'RW': <no instances found>
+        ... Known scopes under 'ADDR_START': <no instances found>
+        ... Known scopes under 'ADDR_END': <no instances found>
+%Error: Exiting due to 6 error(s), 25 warning(s)
+Running: /usr/bin/verilator --cc --top-module rv32_tb -sv --build --exe --assert /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/enums.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/cpu.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/adder.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/alu.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/counter.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/csr.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/cu.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/register.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/datapath.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/io.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/le_to_be.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mem.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mmu.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mux.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/regfile.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/sim/rv32_tb.sv /home/artjom/Desktop/Uni/1sem_NIR/risc-v/sim/dut_bus.sv /home/artjom/Desktop/CIRCT/circt/build/bin/driver.cpp
+CompletedProcess(args=['/usr/bin/verilator', '--cc', '--top-module', 'rv32_tb', '-sv', '--build', '--exe', '--assert', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/enums.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/cpu.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/adder.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/alu.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/counter.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/csr.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/cu.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/register.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/datapath.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/io.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/le_to_be.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mem.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mmu.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/mux.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/core/regfile.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/sim/rv32_tb.sv', '/home/artjom/Desktop/Uni/1sem_NIR/risc-v/sim/dut_bus.sv', '/home/artjom/Desktop/CIRCT/circt/build/bin/driver.cpp'], returncode=1)
