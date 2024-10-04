@@ -1,18 +1,22 @@
 module ram
     #(parameter integer WORDS = 1024)
-    (input var logic clk,
-     mmap_dev.slave iface);
+     (input  var logic       clk,
+      input  var logic       re,
+      output var logic[31:0] rd,
+      input  var logic       we,
+      input  var logic[31:0] wd,
+      input  var logic[31:2] addr);
 
     logic[31:0] ram[WORDS - 1 : 0];
 
     always_ff @(posedge clk) begin
-        if (iface.we) begin
-            ram[iface.addr[31:2]] <= iface.wd;
+        if (we) begin
+            ram[addr[31:2]] <= wd;
         end;
     end
 
     always_ff @(negedge clk) begin
-        iface.rd <= iface.re ? ram[iface.addr[31:2]] : {32 {1'bx}};
+        rd <= re ? ram[addr[31:2]] : {32 {1'bx}};
     end;
 
 endmodule
@@ -20,8 +24,10 @@ endmodule
 module rom
     #(parameter integer WORDS = 1024,
       parameter string INITIAL_FILE = "")
-    (input var logic clk,
-     mmap_dev.slave iface);
+     (input  var logic       clk,
+      input  var logic       re,
+      output var logic[31:0] rd,
+      input  var logic[31:2] addr);
 
     logic[31:0] rom[WORDS - 1 : 0];
 
@@ -45,7 +51,7 @@ module rom
     end;
 
     always_ff @(negedge clk) begin
-        iface.rd <= iface.re ? rom[iface.addr[31:2]] : {32 {1'bx}};
+        rd <= re ? rom[addr[31:2]] : {32 {1'bx}};
     end;
 
 endmodule

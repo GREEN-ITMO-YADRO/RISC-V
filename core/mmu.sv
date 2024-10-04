@@ -1,55 +1,25 @@
-interface mmap_dev
-    #(parameter logic[31:0] ADDR_START = 32'b0,
-      parameter logic[31:0] ADDR_END = 32'b0,
-      parameter logic RW = 1'b1);
+module mmu
+    #(parameter integer DEVICE_COUNT = 0)
+     (input  var logic       re, we,
+      input  var logic[1:0]  rd_unit, wd_unit,
+      input  var logic[31:0] addr,
+      input  var logic[31:0] wd,
+      output var logic[31:0] rd,
 
-    logic[31:2] addr;
-    logic re;
-    logic[31:0] rd;
-    logic we;
-    logic[31:0] wd;
+      output var logic access_fault,
+      output var logic addr_misaligned,
 
-    modport slave(input re, we, addr, wd, output rd);
-    modport master(output re, we, addr, wd, input rd);
+      output var logic[31:2] dev_addr[DEVICE_COUNT],
 
-endinterface
+      output var logic       dev_re[DEVICE_COUNT],
+      input  var logic[31:0] dev_rd[DEVICE_COUNT],
 
-module mmu #(parameter integer DEVICE_COUNT = 0)
-               (input var logic re, we,
-                input var logic[1:0] rd_unit, wd_unit,
-                input var logic[31:0] addr,
-                input var logic[31:0] wd,
-                output var logic[31:0] rd,
+      output var logic       dev_we[DEVICE_COUNT],
+      output var logic[31:0] dev_wd[DEVICE_COUNT],
 
-                output var logic access_fault,
-                output var logic addr_misaligned,
-
-                mmap_dev.master dev_ifs[DEVICE_COUNT]);
-
-    logic dev_re[DEVICE_COUNT];
-    logic dev_we[DEVICE_COUNT];
-    logic[31:2] dev_addr[DEVICE_COUNT];
-    logic[31:0] dev_wd[DEVICE_COUNT];
-    logic[31:0] dev_rd[DEVICE_COUNT];
-    logic[31:0] dev_addr_start[DEVICE_COUNT];
-    logic[31:0] dev_addr_end[DEVICE_COUNT];
-    logic dev_rw[DEVICE_COUNT];
-
-    generate
-        for (genvar i = 0; i < DEVICE_COUNT; ++i) begin
-            assign dev_ifs[i].addr = dev_addr[i];
-
-            assign dev_ifs[i].re = dev_re[i];
-            assign dev_rd[i] = dev_ifs[i].rd;
-
-            assign dev_ifs[i].we = dev_we[i];
-            assign dev_ifs[i].wd = dev_wd[i];
-
-            assign dev_rw[i] = dev_ifs[i].RW;
-            assign dev_addr_start[i] = dev_ifs[i].ADDR_START;
-            assign dev_addr_end[i] = dev_ifs[i].ADDR_END;
-        end;
-    endgenerate;
+      input var logic       dev_ro[DEVICE_COUNT],
+      input var logic[31:0] dev_addr_start[DEVICE_COUNT],
+      input var logic[31:0] dev_addr_end[DEVICE_COUNT]);
 
     logic[31:0] local_addr;
     logic[31:0] addr_base;
@@ -198,7 +168,7 @@ module mmu #(parameter integer DEVICE_COUNT = 0)
                     access_fault_r_in[i] = 1'b0;
 
                     if (we & ~addr_misaligned_w) begin
-                        if (dev_rw[i]) begin
+                        if (dev_ro[i]) begin
                             access_fault_w_in[i] = 1'b0;
                             dev_we[i] = 1'b1;
                         end;

@@ -1,32 +1,16 @@
-interface dut_bus;
+module dut_bus_slave
+    (input  var logic       clk,
+     input  var logic[7:0]  bus_rx[$],
+     input  var logic       re,
+     output var logic[31:0] rd,
+     input  var logic       we,
+     input  var logic[31:0] wd);
 
-    logic[7:0] rx[$];
-
-    modport master(output rx);
-    modport slave(input rx);
-
-    task automatic read(input var int count, ref var string str);
-
-        int rx_size = rx.size();
-
-        for (int i = 0; i < count && i < rx_size; ++i) begin
-            logic[7:0] rx_byte = rx.pop_front();
-            str = {str, rx_byte};
-        end;
-
-    endtask;
-
-endinterface
-
-module dut_bus_slave(input var logic clk,
-                     dut_bus.slave bus,
-                     mmap_dev.slave mmap);
-
-    assign mmap.rd = mmap.re ? 32'b0 : {32 {1'bx}};
+    assign rd = re ? 32'b0 : {32 {1'bx}};
 
     always_ff @(posedge clk) begin
-        if (mmap.we) begin
-            bus.rx.push_back(mmap.wd[7:0]);
+        if (we) begin
+            bus_rx.push_back(wd[7:0]);
         end;
     end;
 
