@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module register
     #(parameter WIDTH = 32,
       parameter logic[WIDTH - 1 : 0] RESET_VALUE = 0)

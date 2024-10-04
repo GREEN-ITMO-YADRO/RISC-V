@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module ram
     #(parameter integer WORDS = 1024)
      (input  var logic       clk,

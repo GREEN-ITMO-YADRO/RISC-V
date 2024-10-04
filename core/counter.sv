@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module counter
     #(parameter WIDTH = 32)
     (input var logic clk, reset,

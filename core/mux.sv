@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module mux
     #(parameter SELECTOR_WIDTH = 4,
       parameter DATA_WIDTH = 32)
