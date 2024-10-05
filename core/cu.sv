@@ -2,53 +2,66 @@
 
 import enums::*;
 
-module cu(input var proc_state_t proc_state,
-          output var proc_state_t proc_state_next,
+module cu (
+    input  proc_state_t proc_state,
+    output proc_state_t proc_state_next,
 
-          input var logic[6:0] opcode,
-          input var logic[2:0] funct3,
-          input var logic[6:0] funct7,
-          input var logic[11:0] csr,
-          input var logic[14:0] instr_reg_addr,
+    input logic [ 6:0] opcode,
+    input logic [ 2:0] funct3,
+    input logic [ 6:0] funct7,
+    input logic [11:0] csr,
+    input logic [14:0] instr_reg_addr,
 
-          output var instr_type_t instr_type,
+    output instr_type_t instr_type,
 
-          output var logic mem_re, mem_we,
-          output var logic[1:0] mem_rd_unit, mem_wd_unit,
-          output var logic mem_zero_extend,
+    output logic mem_re,
+    output logic mem_we,
+    output logic [1:0] mem_rd_unit,
+    output logic [1:0] mem_wd_unit,
+    output logic mem_zero_extend,
 
-          output var alu_op_t alu_op,
-          output var logic[1:0] alu_lhs_src,
-          output var logic[1:0] alu_rhs_src,
-          input var logic alu_bit0,
+    output alu_op_t alu_op,
+    output logic [1:0] alu_lhs_src,
+    output logic [1:0] alu_rhs_src,
+    input logic alu_bit0,
 
-          output var logic instr_next_sel,
-          output var logic mem_addr_sel,
+    output logic instr_next_sel,
+    output logic mem_addr_sel,
 
-          output var logic reg_we,
-          output var logic[1:0] reg_wd_src,
-          input var logic reg_wa_is_x0,
+    output logic reg_we,
+    output logic [1:0] reg_wd_src,
+    input logic reg_wa_is_x0,
 
-          output var logic pc_next_base_src,
-          output var logic pc_next_offset_src,
-          output var logic[1:0] pc_next_sel,
+    output logic pc_next_base_src,
+    output logic pc_next_offset_src,
+    output logic [1:0] pc_next_sel,
 
-          output var logic[2:0] csr_wd_sel,
-          output var logic[1:0] mie_next_sel, mpie_next_sel,
-          input var logic mcycle_we_mem,
-          output var logic mcycle_next_sel, mcycle_we,
-          output var logic minstret_we, instr_retired,
-          output var logic mepc_next_sel, mcause_next_sel,
-          output var logic[2:0] mtval_next_sel,
+    output logic [2:0] csr_wd_sel,
+    output logic [1:0] mie_next_sel,
+    output logic [1:0] mpie_next_sel,
+    input logic mcycle_we_mem,
+    output logic mcycle_next_sel,
+    output logic mcycle_we,
+    output logic minstret_we,
+    output logic instr_retired,
+    output logic mepc_next_sel,
+    output logic mcause_next_sel,
+    output logic [2:0] mtval_next_sel,
 
-          output var csr_t csr_id,
-          output var mcause_t mcause_next,
-          output var logic mtip, msip, meip,
-          input var logic mie, mtie, msie, meie,
+    output csr_t csr_id,
+    output mcause_t mcause_next,
+    output logic mtip,
+    output logic msip,
+    output logic meip,
+    input logic mie,
+    input logic mtie,
+    input logic msie,
+    input logic meie,
 
-          input var logic access_fault,
-          input var logic addr_misaligned,
-          input var logic timer_went_off);
+    input logic access_fault,
+    input logic addr_misaligned,
+    input logic timer_went_off
+);
 
     alu_op_t instr_alu_op;
     logic illegal_instr_idec, illegal_instr_adec;
@@ -58,48 +71,74 @@ module cu(input var proc_state_t proc_state,
 
     logic trapped;
 
-    logic[1:0] mie_next_sel_instr, mpie_next_sel_instr;
-    logic[1:0] pc_next_sel_instr;
+    logic [1:0] mie_next_sel_instr, mpie_next_sel_instr;
+    logic [1:0] pc_next_sel_instr;
     logic reg_we_instr;
 
     logic mcycle_we_csr;
 
-    mux #(.DATA_WIDTH(2), .SELECTOR_WIDTH(1)) mie_next_sel_mux(
-        .in('{mie_next_sel_instr, 2'b01}),
+    mux #(
+        .DATA_WIDTH(2),
+        .SELECTOR_WIDTH(1)
+    ) mie_next_sel_mux (
+        .in ('{mie_next_sel_instr, 2'b01}),
         .sel(trapped),
         .out(mie_next_sel)
     );
-    mux #(.DATA_WIDTH(2), .SELECTOR_WIDTH(1)) mpie_next_sel_mux(
-        .in('{mpie_next_sel_instr, 2'b01}),
+    mux #(
+        .DATA_WIDTH(2),
+        .SELECTOR_WIDTH(1)
+    ) mpie_next_sel_mux (
+        .in ('{mpie_next_sel_instr, 2'b01}),
         .sel(trapped),
         .out(mpie_next_sel)
     );
-    mux #(.DATA_WIDTH(2), .SELECTOR_WIDTH(1)) pc_next_sel_mux(
-        .in('{pc_next_sel_instr, 2'b01}),
+    mux #(
+        .DATA_WIDTH(2),
+        .SELECTOR_WIDTH(1)
+    ) pc_next_sel_mux (
+        .in ('{pc_next_sel_instr, 2'b01}),
         .sel(trapped),
         .out(pc_next_sel)
     );
-    mux #(.DATA_WIDTH(1), .SELECTOR_WIDTH(1)) reg_we_mux(
-        .in('{reg_we_instr, 1'b0}),
+    mux #(
+        .DATA_WIDTH(1),
+        .SELECTOR_WIDTH(1)
+    ) reg_we_mux (
+        .in ('{reg_we_instr, 1'b0}),
         .sel(trapped),
         .out(reg_we)
     );
 
-    instr_decoder idec(
-        .proc_state(proc_state), .proc_state_next(proc_state_next),
-        .opcode(opcode), .funct3(funct3), .funct7(funct7), .instr_reg_addr(instr_reg_addr),
+    instr_decoder idec (
+        .proc_state(proc_state),
+        .proc_state_next(proc_state_next),
+        .opcode(opcode),
+        .funct3(funct3),
+        .funct7(funct7),
+        .instr_reg_addr(instr_reg_addr),
         .instr_type(instr_type),
-        .mem_re(mem_re), .mem_we(mem_we),
-        .mem_rd_unit(mem_rd_unit), .mem_wd_unit(mem_wd_unit), .mem_zero_extend(mem_zero_extend),
-        .alu_op(instr_alu_op), .alu_lhs_src(alu_lhs_src), .alu_rhs_src(alu_rhs_src),
+        .mem_re(mem_re),
+        .mem_we(mem_we),
+        .mem_rd_unit(mem_rd_unit),
+        .mem_wd_unit(mem_wd_unit),
+        .mem_zero_extend(mem_zero_extend),
+        .alu_op(instr_alu_op),
+        .alu_lhs_src(alu_lhs_src),
+        .alu_rhs_src(alu_rhs_src),
         .alu_bit0(alu_bit0),
-        .instr_next_sel(instr_next_sel), .mem_addr_sel(mem_addr_sel),
-        .reg_we(reg_we_instr), .reg_wd_src(reg_wd_src), .reg_wa_is_x0(reg_wa_is_x0),
-        .pc_next_base_src(pc_next_base_src), .pc_next_offset_src(pc_next_offset_src),
+        .instr_next_sel(instr_next_sel),
+        .mem_addr_sel(mem_addr_sel),
+        .reg_we(reg_we_instr),
+        .reg_wd_src(reg_wd_src),
+        .reg_wa_is_x0(reg_wa_is_x0),
+        .pc_next_base_src(pc_next_base_src),
+        .pc_next_offset_src(pc_next_offset_src),
         .pc_next_sel(pc_next_sel_instr),
 
         .csr_id(csr_id),
-        .csr_ro(csr_ro), .csr_valid(csr_valid),
+        .csr_ro(csr_ro),
+        .csr_valid(csr_valid),
         .csr_wd_sel(csr_wd_sel),
 
         .mcycle_we_csr(mcycle_we_csr),
@@ -117,18 +156,24 @@ module cu(input var proc_state_t proc_state,
         .ecall(ecall),
         .ebreak(ebreak)
     );
-    csr_decoder cdec(
+    csr_decoder cdec (
         .csr(csr),
-        .csr_id(csr_id), .ro(csr_ro), .valid(csr_valid),
-        .mcycle_we(mcycle_we_csr), .minstret_we(minstret_we)
+        .csr_id(csr_id),
+        .ro(csr_ro),
+        .valid(csr_valid),
+        .mcycle_we(mcycle_we_csr),
+        .minstret_we(minstret_we)
     );
-    alu_decoder adec(
+    alu_decoder adec (
         .proc_state(proc_state),
-        .opcode(opcode), .funct3(funct3), .funct7(funct7),
-        .instr_alu_op(instr_alu_op), .alu_op(alu_op),
+        .opcode(opcode),
+        .funct3(funct3),
+        .funct7(funct7),
+        .instr_alu_op(instr_alu_op),
+        .alu_op(alu_op),
         .illegal_instr(illegal_instr_adec)
     );
-    trap_handler trap(
+    trap_handler trap (
         .proc_state(proc_state),
         .access_fault(access_fault),
         .addr_misaligned(addr_misaligned),
@@ -143,68 +188,79 @@ module cu(input var proc_state_t proc_state,
         .mcause_next(mcause_next),
         .trapped(trapped),
 
-        .mepc_next_sel(mepc_next_sel),
+        .mepc_next_sel  (mepc_next_sel),
         .mcause_next_sel(mcause_next_sel),
-        .mtval_next_sel(mtval_next_sel),
+        .mtval_next_sel (mtval_next_sel),
 
-        .mtip(mtip), .msip(msip), .meip(meip),
-        .mie(mie), .mtie(mtie), .msie(msie), .meie(meie)
+        .mtip(mtip),
+        .msip(msip),
+        .meip(meip),
+        .mie (mie),
+        .mtie(mtie),
+        .msie(msie),
+        .meie(meie)
     );
 
 endmodule
 
-module instr_decoder(input var proc_state_t proc_state,
-                     output var proc_state_t proc_state_next,
+module instr_decoder (
+    input  proc_state_t proc_state,
+    output proc_state_t proc_state_next,
 
-                     input var logic[6:0] opcode,
-                     input var logic[2:0] funct3,
-                     input var logic[6:0] funct7,
-                     input var logic[14:0] instr_reg_addr,
+    input logic [ 6:0] opcode,
+    input logic [ 2:0] funct3,
+    input logic [ 6:0] funct7,
+    input logic [14:0] instr_reg_addr,
 
-                     output var instr_type_t instr_type,
+    output instr_type_t instr_type,
 
-                     output var logic mem_re,
-                     output var logic mem_we,
-                     output var logic[1:0] mem_rd_unit, mem_wd_unit,
-                     output var logic mem_zero_extend,
+    output logic mem_re,
+    output logic mem_we,
+    output logic [1:0] mem_rd_unit,
+    output logic [1:0] mem_wd_unit,
+    output logic mem_zero_extend,
 
-                     output var alu_op_t alu_op,
-                     output var logic[1:0] alu_lhs_src,
-                     output var logic[1:0] alu_rhs_src,
-                     input var logic alu_bit0,
+    output alu_op_t alu_op,
+    output logic [1:0] alu_lhs_src,
+    output logic [1:0] alu_rhs_src,
+    input logic alu_bit0,
 
-                     output var logic instr_next_sel,
-                     output var logic mem_addr_sel,
+    output logic instr_next_sel,
+    output logic mem_addr_sel,
 
-                     output var logic reg_we,
-                     output var logic[1:0] reg_wd_src,
-                     input var logic reg_wa_is_x0,
+    output logic reg_we,
+    output logic [1:0] reg_wd_src,
+    input logic reg_wa_is_x0,
 
-                     output var logic pc_next_base_src,
-                     output var logic pc_next_offset_src,
-                     output var logic[1:0] pc_next_sel,
+    output logic pc_next_base_src,
+    output logic pc_next_offset_src,
+    output logic [1:0] pc_next_sel,
 
-                     input var csr_t csr_id,
-                     input var logic csr_ro, csr_valid,
-                     output var logic[2:0] csr_wd_sel,
+    input csr_t csr_id,
+    input logic csr_ro,
+    input logic csr_valid,
+    output logic [2:0] csr_wd_sel,
 
-                     input var logic mcycle_we_csr,
-                     input var logic mcycle_we_mem,
-                     output var logic mcycle_we,
-                     output var logic mcycle_next_sel,
+    input  logic mcycle_we_csr,
+    input  logic mcycle_we_mem,
+    output logic mcycle_we,
+    output logic mcycle_next_sel,
 
-                     output var logic instr_retired,
+    output logic instr_retired,
 
-                     output var logic[1:0] mpie_next_sel, mie_next_sel,
-                     input var logic trapped,
+    output logic [1:0] mpie_next_sel,
+    output logic [1:0] mie_next_sel,
+    input logic trapped,
 
-                     output var logic illegal_instr,
-                     output var logic ecall, ebreak);
+    output logic illegal_instr,
+    output logic ecall,
+    output logic ebreak
+);
 
-    logic[2:0] reg_control;
+    logic [2:0] reg_control;
     assign {reg_we, reg_wd_src} = reg_control;
 
-    logic[1:0] pc_control;
+    logic [1:0] pc_control;
     assign {pc_next_base_src, pc_next_offset_src} = pc_control;
 
     logic branch;
@@ -214,9 +270,7 @@ module instr_decoder(input var proc_state_t proc_state,
     assign mcycle_next_sel = csr_instr & mcycle_we_csr;
 
     proc_state_t proc_state_next_comb;
-    assign proc_state_next = trapped
-            ? PROC_STATE_INSTR_FETCH
-            : proc_state_next_comb;
+    assign proc_state_next = trapped ? PROC_STATE_INSTR_FETCH : proc_state_next_comb;
 
     always_comb begin
         instr_type = INSTR_TYPE_R;
@@ -224,7 +278,9 @@ module instr_decoder(input var proc_state_t proc_state,
         csr_instr = 1'b0;
 
         reg_control = {1'b0, 2'b00};
-        {mem_re, mem_we, mem_zero_extend, mem_rd_unit, mem_wd_unit} = {1'b0, 1'b0, 1'b0, 2'b10, 2'b10};
+        {mem_re, mem_we, mem_zero_extend, mem_rd_unit, mem_wd_unit} = {
+            1'b0, 1'b0, 1'b0, 2'b10, 2'b10
+        };
         pc_control = {1'b0, 1'b0};
         {alu_op, alu_lhs_src, alu_rhs_src} = {ALU_OP_ZERO, 2'b00, 2'b00};
 
@@ -239,7 +295,7 @@ module instr_decoder(input var proc_state_t proc_state,
 
         instr_retired = 1'b0;
 
-        case (proc_state)
+        unique case (proc_state)
             PROC_STATE_INSTR_FETCH: begin
                 instr_next_sel = 1'b1;
                 mem_addr_sel = 1'b1;
@@ -255,23 +311,23 @@ module instr_decoder(input var proc_state_t proc_state,
                 proc_state_next_comb = PROC_STATE_INSTR_FETCH;
 
                 case (opcode)
-                    7'b011_0111: begin // LUI
-                        instr_type = INSTR_TYPE_U;
+                    7'b011_0111: begin  // LUI
+                        instr_type  = INSTR_TYPE_U;
                         reg_control = {1'b1, 2'b10};
                     end
-                    7'b001_0111: begin // AUIPC
+                    7'b001_0111: begin  // AUIPC
                         instr_type = INSTR_TYPE_U;
                         reg_control = {1'b1, 2'b00};
                         {alu_op, alu_lhs_src, alu_rhs_src} = {ALU_OP_ADD, 2'b01, 2'b00};
                     end
 
-                    7'b110_1111: begin // JAL
+                    7'b110_1111: begin  // JAL
                         instr_type = INSTR_TYPE_J;
                         reg_control = {1'b1, 2'b00};
                         pc_control = {1'b0, 1'b1};
                         {alu_op, alu_lhs_src, alu_rhs_src} = {ALU_OP_ADD, 2'b01, 2'b01};
                     end
-                    7'b110_0111: begin // JALR
+                    7'b110_0111: begin  // JALR
                         instr_type = INSTR_TYPE_I;
                         reg_control = {1'b1, 2'b00};
                         pc_control = {1'b1, 1'b1};
@@ -283,161 +339,175 @@ module instr_decoder(input var proc_state_t proc_state,
                         {alu_lhs_src, alu_rhs_src} = {2'b10, 2'b10};
 
                         case (funct3)
-                            3'b000: {alu_op, branch} = {ALU_OP_SEQ, alu_bit0}; // BEQ
-                            3'b001: {alu_op, branch} = {ALU_OP_SEQ, ~alu_bit0}; // BNE
-                            3'b100: {alu_op, branch} = {ALU_OP_SLT, alu_bit0}; // BLT
-                            3'b101: {alu_op, branch} = {ALU_OP_SLT, ~alu_bit0}; // BGE
-                            3'b110: {alu_op, branch} = {ALU_OP_SLTU, alu_bit0}; // BLTU
-                            3'b111: {alu_op, branch} = {ALU_OP_SLTU, ~alu_bit0}; // BGEU
-                            default: illegal_instr = 1'b1; // illop
-                        endcase;
+                            3'b000:  {alu_op, branch} = {ALU_OP_SEQ, alu_bit0};  // BEQ
+                            3'b001:  {alu_op, branch} = {ALU_OP_SEQ, ~alu_bit0};  // BNE
+                            3'b100:  {alu_op, branch} = {ALU_OP_SLT, alu_bit0};  // BLT
+                            3'b101:  {alu_op, branch} = {ALU_OP_SLT, ~alu_bit0};  // BGE
+                            3'b110:  {alu_op, branch} = {ALU_OP_SLTU, alu_bit0};  // BLTU
+                            3'b111:  {alu_op, branch} = {ALU_OP_SLTU, ~alu_bit0};  // BGEU
+                            default: illegal_instr = 1'b1;  // illop
+                        endcase
 
                         if (branch) begin
                             pc_control = {1'b0, 1'b1};
-                        end;
+                        end
                     end
 
                     7'b000_0011: begin
-                        instr_type = INSTR_TYPE_I;
+                        instr_type  = INSTR_TYPE_I;
                         reg_control = {1'b1, 2'b01};
 
-                        case (funct3) inside
-                            3'b000, 3'b100: begin // LB (U)
+                        unique case (funct3) inside
+                            3'b000, 3'b100: begin  // LB (U)
                                 {mem_re, mem_zero_extend, mem_rd_unit} = {1'b1, funct3[2], 2'b00};
                             end
 
-                            3'b001, 3'b101: begin // LH (U)
+                            3'b001, 3'b101: begin  // LH (U)
                                 {mem_re, mem_zero_extend, mem_rd_unit} = {1'b1, funct3[2], 2'b01};
                             end
 
-                            3'b010: begin // LW
+                            3'b010: begin  // LW
                                 {mem_re, mem_zero_extend, mem_rd_unit} = {1'b1, 1'b0, 2'b10};
                             end
 
-                            default: illegal_instr = 1'b1; // illop
-                        endcase;
+                            default: illegal_instr = 1'b1;  // illop
+                        endcase
                     end
 
                     7'b010_0011: begin
                         instr_type = INSTR_TYPE_S;
 
                         case (funct3)
-                            3'b000: {mem_re, mem_we, mem_rd_unit, mem_wd_unit} =
-                                {1'b1, 1'b1, {2 {2'b00}}}; // SB
-                            3'b001: {mem_re, mem_we, mem_rd_unit, mem_wd_unit} =
-                                {1'b1, 1'b1, {2 {2'b01}}}; // SH
-                            3'b010: {mem_re, mem_we, mem_rd_unit, mem_wd_unit} =
-                                {1'b0, 1'b1, {2 {2'b10}}}; // SW
-                            default: illegal_instr = 1'b1; // illop
-                        endcase;
+                            3'b000:
+                            {mem_re, mem_we, mem_rd_unit, mem_wd_unit} = {
+                                1'b1, 1'b1, {2{2'b00}}
+                            };  // SB
+                            3'b001:
+                            {mem_re, mem_we, mem_rd_unit, mem_wd_unit} = {
+                                1'b1, 1'b1, {2{2'b01}}
+                            };  // SH
+                            3'b010:
+                            {mem_re, mem_we, mem_rd_unit, mem_wd_unit} = {
+                                1'b0, 1'b1, {2{2'b10}}
+                            };  // SW
+                            default: illegal_instr = 1'b1;  // illop
+                        endcase
                     end
 
-                    7'b001_0011: begin // ALU (immediate)
+                    7'b001_0011: begin  // ALU (immediate)
                         instr_type = INSTR_TYPE_I;
                         reg_control = {1'b1, 2'b00};
                         {alu_op, alu_lhs_src, alu_rhs_src} = {ALU_OP_ZERO, 2'b10, 2'b00};
                     end
 
-                    7'b0110011: begin // ALU (register)
+                    7'b0110011: begin  // ALU (register)
                         instr_type = INSTR_TYPE_R;
                         reg_control = {1'b1, 2'b00};
                         {alu_op, alu_lhs_src, alu_rhs_src} = {ALU_OP_ZERO, 2'b10, 2'b10};
                     end
 
-                    7'b000_1111: instr_type = INSTR_TYPE_I; // FENCE (acts as NOP)
+                    7'b000_1111: instr_type = INSTR_TYPE_I;  // FENCE (acts as NOP)
 
                     7'b111_0011: begin
                         instr_type = INSTR_TYPE_I;
 
                         if (funct3 == 3'b000) begin
-                            case ({funct7, instr_reg_addr})
-                                {7'b0, 5'b0, 10'b0}: ecall = 1'b1; // ECALL
-                                {7'b1, 5'b0, 10'b0}: ebreak = 1'b1; // EBREAK
+                            case ({
+                                funct7, instr_reg_addr
+                            })
+                                {7'b0, 5'b0, 10'b0} : ecall = 1'b1;  // ECALL
+                                {7'd1, 5'b0, 10'b0} : ebreak = 1'b1;  // EBREAK
 
-                                {7'b001_1000, 5'b00010, 10'b0}: begin // MRET
-                                    pc_next_sel = 2'b10;
-                                    mie_next_sel = 2'b10;
+                                {
+                                    7'b001_1000, 5'b00010, 10'b0
+                                } : begin  // MRET
+                                    pc_next_sel   = 2'b10;
+                                    mie_next_sel  = 2'b10;
                                     mpie_next_sel = 2'b10;
                                 end
 
-                                {7'b000_1000, 5'b00101, 10'b0}: ; // WFI (NOP)
+                                {7'b000_1000, 5'b00101, 10'b0} : ;  // WFI (NOP)
 
-                                default: illegal_instr = 1'b1; // illop
+                                default: illegal_instr = 1'b1;  // illop
                             endcase
                         end else begin
                             reg_control = {1'b1, 2'b11};
-                            csr_instr = 1'b1;
+                            csr_instr   = 1'b1;
 
                             case (funct3)
-                                3'b001: begin // CSRRW
+                                3'b001: begin  // CSRRW
                                     csr_wd_sel = 3'd0;
 
                                     if (csr_ro | ~csr_valid) begin
                                         illegal_instr = 1'b1;
-                                    end;
+                                    end
                                 end
 
-                                3'b010: begin // CSRRS
+                                3'b010: begin  // CSRRS
                                     csr_wd_sel = 3'd1;
 
                                     if ((csr_ro & ~reg_wa_is_x0) | ~csr_valid) begin
                                         illegal_instr = 1'b1;
-                                    end;
+                                    end
                                 end
 
-                                3'b011: begin // CSRRC
+                                3'b011: begin  // CSRRC
                                     csr_wd_sel = 3'd2;
 
                                     if ((csr_ro & ~reg_wa_is_x0) | ~csr_valid) begin
                                         illegal_instr = 1'b1;
-                                    end;
+                                    end
                                 end
 
-                                3'b101: begin // CSRRWI
+                                3'b101: begin  // CSRRWI
                                     csr_wd_sel = 3'd3;
 
                                     if (csr_ro | ~csr_valid) begin
                                         illegal_instr = 1'b1;
-                                    end;
+                                    end
                                 end
 
-                                3'b110: begin // CSRRSI
+                                3'b110: begin  // CSRRSI
                                     csr_wd_sel = 3'd4;
 
                                     if ((csr_ro & ~reg_wa_is_x0) | ~csr_valid) begin
                                         illegal_instr = 1'b1;
-                                    end;
+                                    end
                                 end
 
-                                3'b111: begin // CSRRCI
+                                3'b111: begin  // CSRRCI
                                     csr_wd_sel = 3'd5;
 
                                     if ((csr_ro & ~reg_wa_is_x0) | ~csr_valid) begin
                                         illegal_instr = 1'b1;
-                                    end;
+                                    end
                                 end
 
-                                default: begin // illop
+                                default: begin  // illop
                                     reg_control = {1'b0, 2'b00};
                                     csr_instr = 1'b0;
                                     illegal_instr = 1'b1;
                                 end
-                            endcase;
-                         end;
+                            endcase
+                        end
                     end
 
-                    default: illegal_instr = 1'b1; // illop
-                endcase;
+                    default: illegal_instr = 1'b1;  // illop
+                endcase
             end
-        endcase;
-    end;
+        endcase
+    end
 
 endmodule
 
-module csr_decoder(input var logic[11:0] csr,
-                   output var csr_t csr_id,
-                   output var logic ro, valid,
-                   output var logic mcycle_we, minstret_we);
+module csr_decoder (
+    input logic [11:0] csr,
+    output csr_t csr_id,
+    output logic ro,
+    output logic valid,
+    output logic mcycle_we,
+    output logic minstret_we
+);
 
     always_comb begin
         valid = 1'b1;
@@ -452,16 +522,10 @@ module csr_decoder(input var logic[11:0] csr,
             12'h305: csr_id = CSR_MTVEC;
             12'h344: csr_id = CSR_MIP;
             12'h304: csr_id = CSR_MIE;
-            12'hb00,
-            12'hc00,
-            12'hc01: csr_id = CSR_MCYCLE;
-            12'hb80,
-            12'hc80,
-            12'hc81: csr_id = CSR_MCYCLEH;
-            12'hb02,
-            12'hc02: csr_id = CSR_MINSTRET;
-            12'hb82,
-            12'hc82: csr_id = CSR_MINSTRETH;
+            12'hb00, 12'hc00, 12'hc01: csr_id = CSR_MCYCLE;
+            12'hb80, 12'hc80, 12'hc81: csr_id = CSR_MCYCLEH;
+            12'hb02, 12'hc02: csr_id = CSR_MINSTRET;
+            12'hb82, 12'hc82: csr_id = CSR_MINSTRETH;
             12'h306: csr_id = CSR_MCOUNTEREN;
             12'h320: csr_id = CSR_MCOUNTINHIBIT;
             12'h340: csr_id = CSR_MSCRATCH;
@@ -470,121 +534,131 @@ module csr_decoder(input var logic[11:0] csr,
             12'h343: csr_id = CSR_MTVAL;
 
             default: begin
-                valid = 1'b0;
+                valid  = 1'b0;
                 csr_id = CSR_NONE;
             end
-        endcase;
-    end;
+        endcase
+    end
 
     always_comb begin
-        ro = 1'b0;
         mcycle_we = 1'b0;
         minstret_we = 1'b0;
 
-        case (csr_id) inside
-            CSR_MVENDORID, CSR_MARCHID, CSR_MIMPID, CSR_MHARTID: ro = 1'b1;
-        endcase;
-
-        case (csr_id) inside
-            CSR_MCYCLE, CSR_MCYCLEH: mcycle_we = 1'b1;
-            CSR_MINSTRET, CSR_MINSTRETH: minstret_we = 1'b1;
-        endcase;
-    end;
+        ro = csr_id inside {CSR_MVENDORID, CSR_MARCHID, CSR_MIMPID, CSR_MHARTID};
+        mcycle_we = csr_id inside {CSR_MCYCLE, CSR_MCYCLEH};
+        minstret_we = csr_id inside {CSR_MINSTRET, CSR_MINSTRETH};
+    end
 
 endmodule
 
-module alu_decoder(input var proc_state_t proc_state,
-                   input var logic[6:0] opcode,
-                   input var alu_op_t instr_alu_op,
-                   input var logic[2:0] funct3,
-                   input var logic[6:0] funct7,
-                   output var alu_op_t alu_op,
+module alu_decoder (
+    input proc_state_t proc_state,
+    input logic [6:0] opcode,
+    input alu_op_t instr_alu_op,
+    input logic [2:0] funct3,
+    input logic [6:0] funct7,
+    output alu_op_t alu_op,
 
-                   output var logic illegal_instr);
+    output logic illegal_instr
+);
 
     always_comb begin
         alu_op = ALU_OP_ZERO;
         illegal_instr = 1'b0;
 
-        case (proc_state)
-            PROC_STATE_INSTR_FETCH: ; // nop
+        unique case (proc_state)
+            PROC_STATE_INSTR_FETCH: ;  // nop
 
             PROC_STATE_INSTR_DECODING: begin
                 case (instr_alu_op)
-                    5'b00000: case (opcode)
-                        7'b001_0011: case (funct3)
-                            3'b000: alu_op = ALU_OP_ADD; // ADDI
-                            3'b010: alu_op = ALU_OP_SLT; // SLTI
-                            3'b011: alu_op = ALU_OP_SLTU; // SLTIU
-                            3'b100: alu_op = ALU_OP_XOR; // XORI
-                            3'b110: alu_op = ALU_OP_OR; // ORI
-                            3'b111: alu_op = ALU_OP_AND; // ANDI
+                    5'b00000:
+                    case (opcode)
+                        7'b001_0011:
+                        unique case (funct3)
+                            3'b000: alu_op = ALU_OP_ADD;  // ADDI
+                            3'b010: alu_op = ALU_OP_SLT;  // SLTI
+                            3'b011: alu_op = ALU_OP_SLTU;  // SLTIU
+                            3'b100: alu_op = ALU_OP_XOR;  // XORI
+                            3'b110: alu_op = ALU_OP_OR;  // ORI
+                            3'b111: alu_op = ALU_OP_AND;  // ANDI
 
-                            3'b001: if (funct7 == 7'b000_0000) begin
-                                 alu_op = ALU_OP_SLL; // SLLI
-                            end else begin // illop
+                            3'b001:
+                            if (funct7 == 7'b000_0000) begin
+                                alu_op = ALU_OP_SLL;  // SLLI
+                            end else begin  // illop
                                 illegal_instr = 1'b1;
                             end
-                            3'b101: case (funct7)
-                                7'b000_0000: alu_op = ALU_OP_SRL; // SRLI
-                                7'b010_0000: alu_op = ALU_OP_SRA; // SRAI
-                                default: illegal_instr = 1'b1; // illop
+                            3'b101:
+                            case (funct7)
+                                7'b000_0000: alu_op = ALU_OP_SRL;  // SRLI
+                                7'b010_0000: alu_op = ALU_OP_SRA;  // SRAI
+                                default: illegal_instr = 1'b1;  // illop
                             endcase
                         endcase
 
-                        7'b011_0011: case (funct7)
-                            7'b000_0000: case (funct3)
-                                3'b000: alu_op = ALU_OP_ADD; // ADD
-                                3'b001: alu_op = ALU_OP_SLL; // SLL
-                                3'b010: alu_op = ALU_OP_SLT; // SLT
-                                3'b011: alu_op = ALU_OP_SLTU; // SLTU
-                                3'b100: alu_op = ALU_OP_XOR; // XOR
-                                3'b101: alu_op = ALU_OP_SRL; // SRL
-                                3'b110: alu_op = ALU_OP_OR; // OR
-                                3'b111: alu_op = ALU_OP_AND; // AND
+                        7'b011_0011:
+                        case (funct7)
+                            7'b000_0000:
+                            unique case (funct3)
+                                3'b000: alu_op = ALU_OP_ADD;  // ADD
+                                3'b001: alu_op = ALU_OP_SLL;  // SLL
+                                3'b010: alu_op = ALU_OP_SLT;  // SLT
+                                3'b011: alu_op = ALU_OP_SLTU;  // SLTU
+                                3'b100: alu_op = ALU_OP_XOR;  // XOR
+                                3'b101: alu_op = ALU_OP_SRL;  // SRL
+                                3'b110: alu_op = ALU_OP_OR;  // OR
+                                3'b111: alu_op = ALU_OP_AND;  // AND
                             endcase
 
-                            7'b010_0000: case (funct3)
-                                3'b000: alu_op = ALU_OP_SUB; // SUB
-                                3'b101: alu_op = ALU_OP_SRA; // SRA
-                                default: illegal_instr = 1'b1; // illop
+                            7'b010_0000:
+                            case (funct3)
+                                3'b000:  alu_op = ALU_OP_SUB;  // SUB
+                                3'b101:  alu_op = ALU_OP_SRA;  // SRA
+                                default: illegal_instr = 1'b1;  // illop
                             endcase
 
-                            default: illegal_instr = 1'b1; // illop
+                            default: illegal_instr = 1'b1;  // illop
                         endcase
+
+                        default: ;
                     endcase
 
                     default: alu_op = instr_alu_op;
-                endcase;
+                endcase
             end
-        endcase;
-    end;
+        endcase
+    end
 
 endmodule
 
-module trap_handler(input var proc_state_t proc_state,
-                    input var logic access_fault,
-                    input var logic addr_misaligned,
-                    input var logic illegal_instr,
-                    input var logic ecall,
-                    input var logic ebreak,
-                    input var logic timer_went_off,
+module trap_handler (
+    input proc_state_t proc_state,
+    input logic access_fault,
+    input logic addr_misaligned,
+    input logic illegal_instr,
+    input logic ecall,
+    input logic ebreak,
+    input logic timer_went_off,
 
-                    input var logic mem_re, mem_we,
+    input logic mem_re,
+    input logic mem_we,
 
-                    output var mcause_t mcause_next,
-                    output var logic trapped,
-                    output var logic mepc_next_sel,
-                    output var logic mcause_next_sel,
-                    output var logic[2:0] mtval_next_sel,
+    output mcause_t mcause_next,
+    output logic trapped,
+    output logic mepc_next_sel,
+    output logic mcause_next_sel,
+    output logic [2:0] mtval_next_sel,
 
-                    output var logic mtip, msip, meip,
-                    input var logic mie, mtie, msie, meie);
+    output logic mtip,
+    output logic msip,
+    output logic meip,
+    input  logic mie,
+    input  logic mtie,
+    input  logic msie,
+    input  logic meie
+);
 
-    assign {
-        mepc_next_sel,
-        mcause_next_sel
-    } = {2 {trapped}};
+    assign {mepc_next_sel, mcause_next_sel} = {2{trapped}};
 
     assign mtip = timer_went_off;
     assign msip = 1'b0;
@@ -636,7 +710,7 @@ module trap_handler(input var proc_state_t proc_state,
                 mcause_next = MCAUSE_STORE_ADDR_MISALIGN;
             end else begin
                 mcause_next = MCAUSE_LOAD_ADDR_MISALIGN;
-            end;
+            end
         end else if (access_fault) begin
             trapped = 1'b1;
             mtval_next_sel = 3'b010;
@@ -645,8 +719,8 @@ module trap_handler(input var proc_state_t proc_state,
                 mcause_next = MCAUSE_STORE_ACCESS_FAULT;
             end else begin
                 mcause_next = MCAUSE_LOAD_ACCESS_FAULT;
-            end;
-        end;
-    end;
+            end
+        end
+    end
 
 endmodule
