@@ -1,18 +1,25 @@
 `timescale 1ns / 1ps
 
-module counter
-    #(parameter WIDTH = 32)
-    (input var logic clk, reset,
-     output var logic[WIDTH - 1 : 0] rd,
-     input var logic[WIDTH - 1 : 0] wd,
-     input var logic we,
-     input var logic enable);
+module counter #(
+    parameter int WIDTH = 32
+) (
+    input logic clk,
+    input logic reset,
+    output logic [WIDTH - 1 : 0] rd,
+    input logic [WIDTH - 1 : 0] wd,
+    input logic we,
+    input logic enable
+);
 
-    logic[WIDTH - 1 : 0] next;
+    logic [WIDTH - 1 : 0] next;
 
-    register #(.WIDTH(WIDTH), .RESET_VALUE(1'b0)) ctr_reg(
-        .clk(clk), .reset(reset),
-        .rd(rd), .wd(next)
+    register #(
+        .WIDTH(WIDTH)
+    ) ctr_reg (
+        .clk(clk),
+        .reset(reset),
+        .rd(rd),
+        .wd(next)
     );
 
     always_comb begin
@@ -22,7 +29,7 @@ module counter
             next = rd + 1;
         end else begin
             next = rd;
-        end;
-    end;
+        end
+    end
 
 endmodule
