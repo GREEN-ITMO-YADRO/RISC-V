@@ -3,7 +3,31 @@
 # 0. INSTALL DEPENDENCIES (debian) (скорее всего можно скипать)
 sudo apt-get install make clang cmake ninja-build lld pytnon3
 
-# 1. BUILD LLVM 
+# 0. INSTALL VERILATOR 
+
+cd ../../
+git clone https://github.com/verilator/VERILATOR_ROOT
+unset VERILATOR_ROOT
+
+cd verilator
+autoconf # Create ./configure script 
+./configure      # Configure and create Makefile 
+make 
+sudo make install 
+
+cd ..
+
+# 1.BUILD SLANG
+
+git clone https://github.com/MikePopoloski/slang.git 
+
+cd slang 
+cmake -B build 
+cmake --build build -j8 
+
+cd ..
+
+# 2. BUILD LLVM 
 
 # clone CIRCT repo
 git clone https://github.com/llvm/circt
@@ -26,7 +50,7 @@ cmake -G Ninja ../llvm \
 ## build 
 cmake --build . --target check-mlir # or 'ninja' + 'ninja check-mlir'
 
-# 2. BUILD CIRCT 
+# 3. BUILD CIRCT 
 
 cd ../../ 
 mkdir build
@@ -51,15 +75,3 @@ ninja
 
 ninja check-circt
 ninja check-circt-integration 
-
-# 3. INSTALL VERILATOR 
-
-cd ../../
-git clone https://github.com/verilator/VERILATOR_ROOT
-unset VERILATOR_ROOT
-
-cd verilator
-autoconf # Create ./configure script 
-./configure      # Configure and create Makefile 
-make 
-sudo make install 
