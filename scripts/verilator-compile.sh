@@ -1,8 +1,13 @@
 #!/bin/bash
 
-verilator --binary -j 0 \
+verilator --binary --unroll-count 10000 -j 0 \
   core/enums.sv \
+  core/led_mmap.sv \
   core/cpu.sv \
+  core/ram.sv \
+  core/rom.sv \
+  core/word_mmap.sv \
+  sim/dut_bus_slave.sv \
   core/adder.sv \
   core/alu.sv \
   core/counter.sv \
@@ -10,12 +15,8 @@ verilator --binary -j 0 \
   core/cu.sv \
   core/register.sv \
   core/datapath.sv \
-  core/io.sv \
   core/le_to_be.sv \
-  core/mem.sv \
   core/mmu.sv \
   core/mux.sv \
   core/regfile.sv \
-  sim/rv32_tb.sv \
-  sim/dut_bus.sv \
-
+  sim/testbench.sv 

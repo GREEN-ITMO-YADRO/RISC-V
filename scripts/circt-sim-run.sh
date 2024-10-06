@@ -1,8 +1,13 @@
 #!/bin/bash
 
-circt-rtl-sim.py --sim=verilator --top=rv32_tb --valgrind \
+circt-rtl-sim.py --sim=verilator --top=testbench --valgrind \
   core/enums.sv \
+  core/led_mmap.sv \
   core/cpu.sv \
+  core/ram.sv \
+  core/rom.sv \
+  core/word_mmap.sv \
+  sim/dut_bus_slave.sv \
   core/adder.sv \
   core/alu.sv \
   core/counter.sv \
@@ -10,12 +15,9 @@ circt-rtl-sim.py --sim=verilator --top=rv32_tb --valgrind \
   core/cu.sv \
   core/register.sv \
   core/datapath.sv \
-  core/io.sv \
   core/le_to_be.sv \
-  core/mem.sv \
   core/mmu.sv \
   core/mux.sv \
   core/regfile.sv \
-  sim/rv32_tb.sv \
-  sim/dut_bus.sv \
+  sim/testbench.sv \
 
