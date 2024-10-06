@@ -9,7 +9,7 @@ This repository contains the source code of a painfully awful RISC-V core named 
 - Has been tested (sloppily) on a dev board with a Xilinx FPGA (Artix 7 IIRC).
 - Also important to understanding the odd design choices is the fact that the whole project had to be finished in under a month.
   Here are some implications:
-  - The implementation commits a heinous crime: it does instruction fetch on the rising clock edge and execution on the falling edge.
+  - The implementation commits a heinous crime: it does memory write on the rising clock edge and memory read on the falling edge.
   - The memory bus module is inappropriately named MMU.
     Though it was supposed to become that, it didn't due to the lack of time.
   - The code poses difficuly in comprehension as feature completeness was prioritized over readability.
