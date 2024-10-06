@@ -6,26 +6,26 @@ This directory contains files used to bootstrap a C environment and compile C pr
 - [`rv32.ld`](./rv32.ld) is a linker script that sets up the memory map and exports symbols used in the bootloader.
 
 ## Building
-You'll need to build a RISC-V toolchain, which you can obtain from [this link][rv-toolchain].
-After downloading the sources (make sure to fetch its submodules!), build it with the following commands:
+First you'll need to build a RISC-V toolchain:
 
 ```
+$ git clone https://github.com/riscv/riscv-gnu-toolchain
+$ cd riscv-gnu-toolchain
+$ mkdir target
 $ ./configure \
-    --prefix="$TOOLCHAIN_BUILD_DIR" \
+    --prefix="$(pwd)/target" \
     --disable-gdb \
-    --with-arch=rv32i \
+    --with-arch=rv32i_zicsr_zifencei \
     --with-abi=ilp32 \
     --disable-multilib \
     --with-target-cflags='-mbig-endian -mstrict-align -Wl,-melf32briscv'
-$ make
+$ make -j$(nproc)
 ```
 
-Replace `$TOOLCHAIN_BUILD_DIR` as appropriate.
-
-In this directory, build the application by running `make`:
+Then, in this directory, build the application by running `make`:
 
 ```
-$ make TOOLCHAIN_BIN_DIR="$TOOLCHAIN_BUILD_DIR/bin"
+$ make TOOLCHAIN_BIN_DIR="$TOOLCHAIN_DIR/target/bin"
 ```
 
 The built ROM image will be written to `./build/app.mem`.

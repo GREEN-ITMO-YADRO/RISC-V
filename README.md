@@ -12,7 +12,7 @@ This repository contains the source code of a painfully awful RISC-V core named 
   - The implementation commits a heinous crime: it does memory write on the rising clock edge and memory read on the falling edge.
   - The memory bus module is inappropriately named MMU.
     Though it was supposed to become that, it didn't due to the lack of time.
-  - The code poses difficuly in comprehension as feature completeness was prioritized over readability.
+  - The code poses difficulty in comprehension as feature completeness was prioritized over readability.
 
 The directory is structured as follows:
 
