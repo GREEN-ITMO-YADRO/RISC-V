@@ -1,6 +1,7 @@
 #!/bin/bash
 
-verilator --binary --unroll-count 10000 -j 0 \
+verilator --binary --exe -j 0 --unroll-count 10000 --top-module testbench -Wno-ENUMVALUE \
+  core/adder.sv \
   core/enums.sv \
   core/led_mmap.sv \
   core/cpu.sv \
@@ -8,7 +9,6 @@ verilator --binary --unroll-count 10000 -j 0 \
   core/rom.sv \
   core/word_mmap.sv \
   sim/dut_bus_slave.sv \
-  core/adder.sv \
   core/alu.sv \
   core/counter.sv \
   core/csr.sv \
@@ -19,4 +19,10 @@ verilator --binary --unroll-count 10000 -j 0 \
   core/mmu.sv \
   core/mux.sv \
   core/regfile.sv \
-  sim/testbench.sv 
+  sim/testbench.sv  
+
+cd sim 
+
+./../obj_dir/Vtestbench
+
+# cd core.sv.d 
