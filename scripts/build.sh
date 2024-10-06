@@ -54,5 +54,12 @@ ninja check-circt-integration
 
 # 3. INSTALL VERILATOR 
 
-sudo apt-get install verilator # WOW..
+cd ../../
+git clone https://github.com/verilator/VERILATOR_ROOT
+unset VERILATOR_ROOT
 
+cd verilator
+autoconf # Create ./configure script 
+./configure      # Configure and create Makefile 
+make 
+sudo make install 
