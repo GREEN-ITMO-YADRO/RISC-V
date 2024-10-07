@@ -24,6 +24,7 @@ git clone https://github.com/MikePopoloski/slang.git
 cd slang 
 cmake -B build 
 cmake --build build -j8 
+sudo make install
 
 cd ..
 
@@ -76,3 +77,4 @@ ninja
 
 ninja check-circt
 ninja check-circt-integration 
+sudo make install 
