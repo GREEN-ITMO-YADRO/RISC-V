@@ -212,7 +212,7 @@ module csr (
             CSR_MEPC: mepc_next = {wd[31:2], 2'b00};
 
             CSR_MCAUSE:
-            if ({wd[31], wd[3:0]} inside {recognized_causes} && wd[30:4] == 0) begin
+            if (mcause_t'({wd[31], wd[3:0]}) inside {recognized_causes} && wd[30:4] == 0) begin
                 mcause_next = mcause_t'(wd);
             end
 
