@@ -46,6 +46,7 @@ cmake -G Ninja ../llvm \
     -DCMAKE_BUILD_TYPE=DEBUG \
     -DLLVM_USE_SPLIT_DWARF=ON \
     -DLLVM_ENABLE_LLD=ON \
+    -DCIRCT_SLANG_FRONTEND_ENABLED=ON \
 
 ## build 
 cmake --build . --target check-mlir # or 'ninja' + 'ninja check-mlir'
