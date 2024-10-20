@@ -139,7 +139,7 @@ module testbench;
 
         for (int i = 0; i < count && i < rx_size; ++i) begin
             logic [7:0] rx_byte = dut_bus_rx.pop_front();
-            str = {str, rx_byte};
+            str = {str, string'(rx_byte)};
         end
 
     endtask
