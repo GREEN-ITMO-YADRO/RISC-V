@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module dut_bus_slave (
     input  logic        clk,
     ref    logic [ 7:0] bus_rx[$],
