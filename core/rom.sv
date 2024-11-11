@@ -2,7 +2,7 @@
 
 module rom #(
     parameter integer WORDS = 1024,
-    parameter string INITIAL_FILE = ""
+    parameter string INITIAL_FILE = "" 
 ) (
     input  logic        clk,
     input  logic        re,
@@ -24,7 +24,7 @@ module rom #(
     endgenerate
 
     initial begin
-        if (INITIAL_FILE != "") begin
+        if (INITIAL_FILE.len() != 0) begin
             $readmemh(INITIAL_FILE, rom_bytes);
         end
     end

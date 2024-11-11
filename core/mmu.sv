@@ -14,17 +14,17 @@ module mmu #(
     output logic access_fault,
     output logic addr_misaligned,
 
-    output logic [31:2] dev_addr[DEVICE_COUNT],
+    output logic [31:2] dev_addr[DEVICE_COUNT:-1],
 
-    output logic        dev_re[DEVICE_COUNT],
-    input  logic [31:0] dev_rd[DEVICE_COUNT],
+    output logic        dev_re[DEVICE_COUNT:-1],
+    input  logic [31:0] dev_rd[DEVICE_COUNT:-1],
 
-    output logic        dev_we[DEVICE_COUNT],
-    output logic [31:0] dev_wd[DEVICE_COUNT],
+    output logic        dev_we[DEVICE_COUNT:-1],
+    output logic [31:0] dev_wd[DEVICE_COUNT:-1],
 
-    input logic        dev_rw        [DEVICE_COUNT],
-    input logic [31:0] dev_addr_start[DEVICE_COUNT],
-    input logic [31:0] dev_addr_end  [DEVICE_COUNT]
+    input logic        dev_rw        [DEVICE_COUNT:-1],
+    input logic [31:0] dev_addr_start[DEVICE_COUNT:-1],
+    input logic [31:0] dev_addr_end  [DEVICE_COUNT:-1]
 );
 
     logic [31:0] local_addr;
@@ -131,10 +131,10 @@ module mmu #(
         end
     endgenerate
 
-    logic [31:0] addr_base_in[DEVICE_COUNT];
-    logic access_fault_r_in[DEVICE_COUNT];
-    logic access_fault_w_in[DEVICE_COUNT];
-    logic [31:0] word_r_in[DEVICE_COUNT];
+    logic [31:0] addr_base_in[DEVICE_COUNT:-1];
+    logic access_fault_r_in[DEVICE_COUNT:-1];
+    logic access_fault_w_in[DEVICE_COUNT:-1];
+    logic [31:0] word_r_in[DEVICE_COUNT:-1];
 
     // TODO: what is the purpose of +1 here?
     localparam int ChosenDevWidth = $clog2(DEVICE_COUNT + 1);
@@ -153,7 +153,7 @@ module mmu #(
 
         for (int i = 0; i < DEVICE_COUNT; ++i) begin
             if (addr inside {[dev_addr_start[i] : dev_addr_end[i]]}) begin
-                chosen_dev = ChosenDevWidth'(i);
+                chosen_dev = i;
                 valid_addr = 1'b1;
             end
         end
