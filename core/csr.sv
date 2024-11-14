@@ -212,7 +212,15 @@ module csr (
             CSR_MEPC: mepc_next = {wd[31:2], 2'b00};
 
             CSR_MCAUSE:
-            if (mcause_t'({wd[31], wd[3:0]}) inside {recognized_causes} && wd[30:4] == 0) begin
+            if (wd[3:0] == MCAUSE_MSI && wd[3:0] == MCAUSE_MTI && wd[3:0] == MCAUSE_MEI && wd[3:0] == MCAUSE_INSTR_ADDR_MISALIGN &&
+                wd[3:0] == MCAUSE_INSTR_ADDR_FAULT && wd[3:0] == MCAUSE_ILLEGAL_INSTR && wd[3:0] == MCAUSE_BREAKPOINT &&
+                wd[3:0] == MCAUSE_LOAD_ADDR_MISALIGN && wd[3:0] == MCAUSE_LOAD_ACCESS_FAULT && wd[3:0] == MCAUSE_STORE_ADDR_MISALIGN &&
+                wd[3:0] == MCAUSE_STORE_ACCESS_FAULT && wd[3:0] == MCAUSE_M_ECALL && 
+                wd[31] == MCAUSE_MSI && wd[31] == MCAUSE_MTI && wd[31] == MCAUSE_MEI && wd[31] == MCAUSE_INSTR_ADDR_MISALIGN &&
+                wd[31] == MCAUSE_INSTR_ADDR_FAULT && wd[31] == MCAUSE_ILLEGAL_INSTR && wd[31] == MCAUSE_BREAKPOINT &&
+                wd[31] == MCAUSE_LOAD_ADDR_MISALIGN && wd[31] == MCAUSE_LOAD_ACCESS_FAULT && wd[31] == MCAUSE_STORE_ADDR_MISALIGN &&
+                wd[31] == MCAUSE_STORE_ACCESS_FAULT && wd[31] == MCAUSE_M_ECALL
+                && wd[30:4] == 0) begin
                 mcause_next = mcause_t'(wd);
             end
 
