@@ -162,7 +162,7 @@ module csr (
         endcase
     end
 
-    mcause_t recognized_causes[] = {
+    mcause_t recognized_causes[12] = {
         MCAUSE_MSI,
         MCAUSE_MTI,
         MCAUSE_MEI,
@@ -212,15 +212,12 @@ module csr (
             CSR_MEPC: mepc_next = {wd[31:2], 2'b00};
 
             CSR_MCAUSE:
-            if (wd[3:0] == MCAUSE_MSI && wd[3:0] == MCAUSE_MTI && wd[3:0] == MCAUSE_MEI && wd[3:0] == MCAUSE_INSTR_ADDR_MISALIGN &&
-                wd[3:0] == MCAUSE_INSTR_ADDR_FAULT && wd[3:0] == MCAUSE_ILLEGAL_INSTR && wd[3:0] == MCAUSE_BREAKPOINT &&
-                wd[3:0] == MCAUSE_LOAD_ADDR_MISALIGN && wd[3:0] == MCAUSE_LOAD_ACCESS_FAULT && wd[3:0] == MCAUSE_STORE_ADDR_MISALIGN &&
-                wd[3:0] == MCAUSE_STORE_ACCESS_FAULT && wd[3:0] == MCAUSE_M_ECALL && 
-                wd[31] == MCAUSE_MSI && wd[31] == MCAUSE_MTI && wd[31] == MCAUSE_MEI && wd[31] == MCAUSE_INSTR_ADDR_MISALIGN &&
-                wd[31] == MCAUSE_INSTR_ADDR_FAULT && wd[31] == MCAUSE_ILLEGAL_INSTR && wd[31] == MCAUSE_BREAKPOINT &&
-                wd[31] == MCAUSE_LOAD_ADDR_MISALIGN && wd[31] == MCAUSE_LOAD_ACCESS_FAULT && wd[31] == MCAUSE_STORE_ADDR_MISALIGN &&
-                wd[31] == MCAUSE_STORE_ACCESS_FAULT && wd[31] == MCAUSE_M_ECALL
+            if ((mcause_t'({wd[31], wd[3:0]}) == recognized_causes[0] || mcause_t'({wd[31], wd[3:0]}) == recognized_causes[1] || mcause_t'({wd[31], wd[3:0]}) == recognized_causes[2] || mcause_t'({wd[31], wd[3:0]}) == recognized_causes[3] ||
+                mcause_t'({wd[31], wd[3:0]}) == recognized_causes[4] || mcause_t'({wd[31], wd[3:0]}) == recognized_causes[5] || mcause_t'({wd[31], wd[3:0]}) == recognized_causes[6] ||
+                mcause_t'({wd[31], wd[3:0]}) == recognized_causes[7] || mcause_t'({wd[31], wd[3:0]}) == recognized_causes[8] || mcause_t'({wd[31], wd[3:0]}) == recognized_causes[9] ||
+                mcause_t'({wd[31], wd[3:0]}) == recognized_causes[10] || mcause_t'({wd[31], wd[3:0]}) == recognized_causes[11])
                 && wd[30:4] == 0) begin
+            // if (mcause_t'({wd[31], wd[3:0]}) inside {recognized_causes} && wd[30:4] == 0) begin
                 mcause_next = mcause_t'(wd);
             end
 
