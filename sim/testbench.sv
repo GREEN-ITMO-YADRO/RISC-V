@@ -75,14 +75,16 @@ module testbench;
         .wd(mtimecmp_wd),
         .addr(mtimecmp_addr)
     );
-    dut_bus_slave dut_bus_slave (
-        .clk(clk),
-        .bus_rx(dut_bus_rx),
-        .re(dut_bus_re),
-        .rd(dut_bus_rd),
-        .we(dut_bus_we),
-        .wd(dut_bus_wd)
-    );
+
+    assign dut_bus_rd = dut_bus_re ? 32'b0 : {32{1'bx}};
+
+    always_ff @(posedge clk) begin
+        if (dut_bus_we) begin
+            dut_bus_rx.push_back(dut_bus_wd[7:0]);
+        end
+    end
+
+
 
     mmu #(
         .DEVICE_COUNT(6)
