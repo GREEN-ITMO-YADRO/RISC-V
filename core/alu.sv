@@ -16,20 +16,20 @@ module alu (
 
     always_comb begin
         case (alu_op)
-            ALU_OP_ZERO: out = 32'b0;  // ZERO
-            ALU_OP_ADD:  out = lhs + rhs;  // ADD
-            ALU_OP_SUB:  out = lhs - rhs;  // SUB
-            ALU_OP_SLT:  out = (lhs < rhs) ? 32'd1 : 32'b0;  // SLT
-            ALU_OP_SLTU: out = (uword_t'(lhs) < uword_t'(rhs)) ? 32'd1 : 32'b0;  // SLTU
-            ALU_OP_XOR:  out = lhs ^ rhs;  // XOR
-            ALU_OP_OR:   out = lhs | rhs;  // OR
-            ALU_OP_AND:  out = lhs & rhs;  // AND
-            ALU_OP_SLL:  out = uword_t'(lhs) << uword_t'(rhs[4:0]);  // SLL
-            ALU_OP_SRL:  out = uword_t'(lhs) >> uword_t'(rhs[4:0]);  // SRL
-            ALU_OP_SRA:  out = lhs >> rhs[4:0];  // SRA
-            ALU_OP_SEQ:  out = (lhs == rhs) ? 32'd1 : 32'b0;  // SEQ
+            ALU_OP_ZERO: out = 32'b0;
+            ALU_OP_ADD:  out = lhs + rhs;
+            ALU_OP_SUB:  out = lhs - rhs;
+            ALU_OP_SLT:  out = (lhs < rhs) ? 32'd1 : 32'b0;
+            ALU_OP_SLTU: out = (uword_t'(lhs) < uword_t'(rhs)) ? 32'd1 : 32'b0;
+            ALU_OP_XOR:  out = lhs ^ rhs;
+            ALU_OP_OR:   out = lhs | rhs;
+            ALU_OP_AND:  out = lhs & rhs;
+            ALU_OP_SLL:  out = uword_t'(lhs) << uword_t'(rhs[4:0]);
+            ALU_OP_SRL:  out = uword_t'(lhs) >> uword_t'(rhs[4:0]);
+            ALU_OP_SRA:  out = lhs >> rhs[4:0];
+            ALU_OP_SEQ:  out = (lhs == rhs) ? 32'd1 : 32'b0;
 
-            default: out = {32{1'bx}};
+            default: out = 32'b0;
         endcase
     end
 
