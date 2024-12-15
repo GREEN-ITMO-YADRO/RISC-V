@@ -26,7 +26,7 @@ module alu (
             ALU_OP_AND:  out = lhs & rhs;
             ALU_OP_SLL:  out = uword_t'(lhs) << uword_t'(rhs[4:0]);
             ALU_OP_SRL:  out = uword_t'(lhs) >> uword_t'(rhs[4:0]);
-            ALU_OP_SRA:  out = lhs >> rhs[4:0];
+            ALU_OP_SRA:  out = lhs >>> rhs[4:0];
             ALU_OP_SEQ:  out = (lhs == rhs) ? 32'd1 : 32'b0;
 
             default: out = 32'b0;
